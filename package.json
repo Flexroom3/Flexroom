@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
- "scripts": {
-  "start": "node index.js",
-  "client": "npm start --prefix client",
-  "dev": "concurrently \"npm start\" \"npm run client\""
-},
+  "scripts": {
+    "start": "node index.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm start\" \"npm run client\""
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ibrahimfysl/Flexroom.git"
@@ -22,6 +22,8 @@
   "homepage": "https://github.com/ibrahimfysl/Flexroom#readme",
   "dependencies": {
     "concurrently": "^9.2.1",
-    "express": "^5.2.1"
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "mssql": "^12.2.0"
   }
 }

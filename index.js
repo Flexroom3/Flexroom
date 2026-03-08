@@ -1,12 +1,36 @@
-// index.js (Main folder)
+const express = require('express'); // 1. Load Express
+const sql = require('mssql');       // 2. Load SQL Driver
+const config = require('./dbconfig'); // 3. Load your DB Config
 
-const express = require('express');
-const app = express();
+const app = express();               // 4. THIS IS THE MISSING LINE
 const PORT = 5000;
 
-// MUST match exactly what you typed in App.js fetch()
-app.get('/api/message', (req, res) => {
-    res.json({ text: "Hello from the Flexroom Backend!" });
+// NOW you can define your routes
+// index.js (Main folder)
+
+app.get('/api/message', async (req, res) => {
+    let responseData = {
+        backendMsg: "Hello from the Flexroom Backend!",
+        sqlMsg: "Loading SQL data..."
+    };
+
+    try {
+        let pool = await sql.connect(config);
+        
+        // CHANGE: query 'Settings' instead of 'USERS'
+        let result = await pool.request().query("SELECT TOP 1 welcomeMessage FROM Settings");
+        
+        if (result.recordset.length > 0) {
+            responseData.sqlMsg = result.recordset[0].welcomeMessage;
+        } else {
+            responseData.sqlMsg = "Settings table is empty.";
+        }
+    } catch (err) {
+        console.error("SQL Error: ", err);
+        responseData.sqlMsg = "Database connection failed.";
+    }
+
+    res.json(responseData);
 });
 
 app.listen(PORT, () => {

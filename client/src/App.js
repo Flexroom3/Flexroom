@@ -3,27 +3,30 @@ import logo from './logo.svg';
 import './App.css';
 
 function App() {
-  const [backendMessage, setBackendMessage] = useState("Loading...");
+// Inside your App function
+const [messages, setMessages] = useState({ backendMsg: "", sqlMsg: "" });
 
-  useEffect(() => {
-    // Calling the route we created in index.js
+useEffect(() => {
     fetch('/api/message')
       .then(res => res.json())
-      .then(data => setBackendMessage(data.text))
-      .catch(err => setBackendMessage("Could not connect to backend"));
-  }, []);
+      .then(data => {
+          setMessages(data); // Stores the whole object {backendMsg, sqlMsg}
+      })
+      .catch(err => console.log(err));
+}, []);
 
-  return (
+return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h1>Flexroom Project</h1>
-        <p>
-          {backendMessage}
-        </p>
-      </header>
+        <header className="App-header">
+            <img src={logo} className="App-logo" alt="logo" />
+            
+            {/* Displaying both messages */}
+            <h2>{messages.backendMsg}</h2>
+            <p style={{ color: '#61dafb' }}>{messages.sqlMsg}</p>
+            
+        </header>
     </div>
-  );
+);
 }
 
 export default App;
