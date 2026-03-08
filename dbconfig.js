@@ -1,16 +1,16 @@
 require('dotenv').config();
 
 const config = {
-    server: process.env.DB_SERVER, 
-    database: process.env.DB_NAME,
+    user: process.env.DB_USER,        // The 'sa' username
+    password: process.env.DB_PASSWORD, // The password you just set
+    server: process.env.DB_SERVER,    // 127.0.0.1
+    database: process.env.DB_NAME,    // FlexroomDB
+    port: parseInt(process.env.DB_PORT) || 1433,
     options: {
-        encrypt: false,
-        trustServerCertificate: true,
-        // This converts the string 'true' from .env into a real boolean
-        trustedConnection: process.env.DB_TRUSTED === 'true' 
-
-    },
-    port: 1433
+        encrypt: false,               // Set to true if using Azure
+        trustServerCertificate: true, // Crucial for local development
+        instanceName: 'SQLEXPRESS'    // Helps find your specific SQL engine
+    }
 };
 
 module.exports = config;
