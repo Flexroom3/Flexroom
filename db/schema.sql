@@ -1,6 +1,3 @@
--- 1. Create the Database
-CREATE DATABASE FlexroomDB;
-GO
 
 -- 2. Switch to the new Database
 USE FlexroomDB;
