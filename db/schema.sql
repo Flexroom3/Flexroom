@@ -49,3 +49,57 @@ VALUES
 
 SELECT * FROM StudentProfiles;
 SELECT * FROM EvaluatorProfiles;
+
+CREATE TABLE Course (
+    courseID INT PRIMARY KEY,
+    courseName NVARCHAR(100) NOT NULL,
+    courseCode INT NOT NULL UNIQUE,
+    generatedDate NVARCHAR(20) NOT NULL,
+    numClasses INT DEFAULT 0
+);
+
+CREATE TABLE CourseClass (
+    classID INT PRIMARY KEY,
+    courseID INT NOT NULL REFERENCES Course(courseID)
+    className NVARCHAR(100) NOT NULL,
+    classCode INT NOT NULL UNIQUE,
+    generatedDate NVARCHAR(20) NOT NULL,
+    numStudents INT DEFAULT 0
+);
+
+CREATE TABLE Assessment (
+    assessmentID INT PRIMARY KEY,
+    classID INT NOT NULL REFERENCES CourseClass(classID),
+    title NVARCHAR(200) NOT NULL,
+    type NVARCHAR(20) NOT NULL,
+        CHECK (type IN ('document', 'code', 'bubble')), 
+    marks INT NOT NULL,
+    uploadingDate NVARCHAR(20) NOT NULL,
+    dueDate NVARCHAR(20) NULL,
+    status NVARCHAR(20) DEFAULT 'unmarked'
+);
+
+INSERT INTO Course (courseID, courseName, courseCode, generatedDate, numClasses)
+VALUES
+    (1, 'Object Oriented Programming', 301, '2025-01-08', 2),
+    (2, 'Database Systems', 351, '2025-01-08', 1),
+    (3, 'Software Engineering', 471, '2025-08-10', 1),
+    (4, 'Data Structures', 201, '2025-08-10', 1);
+
+INSERT INTO CourseClass (classID, courseID, className, classCode, generatedDate, numStudents)
+VALUES
+    (1, 1, 'OOP-A', 3011, '2025-01-10', 35),
+    (2, 1, 'OOP-B', 3012, '2025-01-10', 30),
+    (3, 2, 'DB-A', 3511, '2025-01-12', 40),
+    (4, 3, 'SE-A', 4711, '2025-08-15', 38),
+    (5, 4, 'DS-A', 2011, '2025-08-15', 42);
+
+INSERT INTO Assessment
+    (assessmentID, classID, title, type, marks, uploadingDate, dueDate, status)
+VALUES
+    (1, 1, 'Lab 1 – Inheritance Report', 'document', 10, '2025-02-20', '2025-03-10', 'marked'),
+    (2, 1, 'Assignment 2 – Linked List', 'code', 20, '2025-03-01', '2025-03-20', 'unmarked'),
+    (3, 3, 'Quiz 1 – ER Diagrams', 'bubble', 5, '2025-02-25', '2025-02-28', 'marked'),
+    (4, 4, 'Assignment 1 – SRS Document', 'document', 25, '2025-03-20', '2025-04-05', 'unmarked'),
+    (5, 5, 'Lab 3 – BST Implementation', 'code', 15, '2025-09-01', NULL, 'unmarked'),
+    (6, 5, 'Mid Exam – Data Structures', 'document', 50, '2025-10-01', '2025-10-15', 'unmarked');
