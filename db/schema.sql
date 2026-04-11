@@ -21,6 +21,49 @@ VALUES
 
 SELECT * FROM Users;
 
+
+CREATE TABLE Submissions (
+    SubmissionID INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
+    AssignmentID INT NOT NULL, 
+    StudentID INT NOT NULL,    -- Foreign Key to Users table
+    FileName NVARCHAR(255) NOT NULL,
+    FileContent VARBINARY(MAX), -- The actual file data (0s and 1s)
+    SubmissionDate DATETIME DEFAULT GETDATE(),
+    Status NVARCHAR(50) DEFAULT 'On-Time',
+    
+    CONSTRAINT FK_Submission_Student FOREIGN KEY (StudentID) 
+        REFERENCES Users(UserID) ON DELETE CASCADE
+    Constraint FK_Submission_Assignment Foreign Key (AssignmentID)
+       References Assessment(assessmentID) on delete cascade
+);
+
+
+CREATE TABLE MatchResults (
+    MatchID INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
+    TargetSubmissionID INT NOT NULL, -- The file being checked
+    SourceSubmissionID INT NOT NULL, -- The file it is being compared against
+    SimilarityPercentage DECIMAL(5,2) NOT NULL,
+    FlaggedStatus AS (CASE WHEN SimilarityPercentage > 30.00 THEN 1 ELSE 0 END), -- Auto-flag if > 30%
+    AnalysisDate DATETIME DEFAULT GETDATE(),
+
+    CONSTRAINT FK_Match_Target FOREIGN KEY (TargetSubmissionID) 
+        REFERENCES Submissions(SubmissionID),
+    CONSTRAINT FK_Match_Source FOREIGN KEY (SourceSubmissionID) 
+        REFERENCES Submissions(SubmissionID)
+);
+
+INSERT INTO Submissions (AssignmentID, StudentID, FileName, FileContent, Status)
+VALUES (101, 2, 'lab1_logic.cpp', CAST('int main() { return 0; }' AS VARBINARY(MAX)), 'On-Time');
+
+INSERT INTO Submissions (AssignmentID, StudentID, FileName, FileContent, Status)
+VALUES (101, 3, 'lab1_final.cpp', CAST('int main() { return 0; }' AS VARBINARY(MAX)), 'On-Time');
+
+INSERT INTO MatchResults (TargetSubmissionID, SourceSubmissionID, SimilarityPercentage)
+VALUES (2, 1, 95.50);
+
+Select * from Submissions
+select * from MatchResults
+
 CREATE TABLE StudentProfiles (
     UserID INT PRIMARY KEY NOT NULL,
     EducationLevel NVARCHAR(50) NOT NULL check(EducationLevel IN ('school','college','graduate','postgraduate')),
@@ -60,7 +103,7 @@ CREATE TABLE Course (
 
 CREATE TABLE CourseClass (
     classID INT PRIMARY KEY,
-    courseID INT NOT NULL REFERENCES Course(courseID)
+    courseID INT NOT NULL REFERENCES Course(courseID),
     className NVARCHAR(100) NOT NULL,
     classCode INT NOT NULL UNIQUE,
     generatedDate NVARCHAR(20) NOT NULL,
@@ -104,6 +147,6 @@ VALUES
     (5, 5, 'Lab 3 – BST Implementation', 'code', 15, '2025-09-01', NULL, 'unmarked'),
     (6, 5, 'Mid Exam – Data Structures', 'document', 50, '2025-10-01', '2025-10-15', 'unmarked');
 
-    SELET * FROM Course;
+    SELECT * FROM Course;
     SELECT * FROM CourseClass;
     SELECT * FROM Assessment;
