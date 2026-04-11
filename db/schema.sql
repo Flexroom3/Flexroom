@@ -32,7 +32,7 @@ CREATE TABLE Submissions (
     Status NVARCHAR(50) DEFAULT 'On-Time',
     
     CONSTRAINT FK_Submission_Student FOREIGN KEY (StudentID) 
-        REFERENCES Users(UserID) ON DELETE CASCADE
+        REFERENCES Users(UserID) ON DELETE CASCADE,
     Constraint FK_Submission_Assignment Foreign Key (AssignmentID)
        References Assessment(assessmentID) on delete cascade
 );
