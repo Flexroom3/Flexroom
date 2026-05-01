@@ -79,13 +79,6 @@ CREATE TABLE Assessment (
     status NVARCHAR(20) DEFAULT 'unmarked'
 );
 
-INSERT INTO Course (courseID, courseName, courseCode, generatedDate, numClasses)
-VALUES
-    (1, 'Object Oriented Programming', 301, '2025-01-08', 2),
-    (2, 'Database Systems', 351, '2025-01-08', 1),
-    (3, 'Software Engineering', 471, '2025-08-10', 1),
-    (4, 'Data Structures', 201, '2025-08-10', 1);
-
 INSERT INTO CourseClass (classID, courseID, className, classCode, generatedDate, numStudents)
 VALUES
     (1, 1, 'OOP-A', 3011, '2025-01-10', 35),
@@ -104,6 +97,5 @@ VALUES
     (5, 5, 'Lab 3 – BST Implementation', 'code', 15, '2025-09-01', NULL, 'unmarked'),
     (6, 5, 'Mid Exam – Data Structures', 'document', 50, '2025-10-01', '2025-10-15', 'unmarked');
 
-    SELET * FROM Course;
     SELECT * FROM CourseClass;
     SELECT * FROM Assessment;
