@@ -10,6 +10,8 @@ import {
   YAxis,
 } from "recharts";
 import "./ProgressGraph.css";
+import flexroomWhiteLogo from "./auth/Flexroom-white.png";
+import roundGreenLogo from "./auth/round-green.png";
 
 const users = [
   {
@@ -25,6 +27,7 @@ const courseClass = {
   classID: 601,
   courseID: 100,
   className: "Operating Systems",
+  sectionLabel: "BSCS-4J",
   classCode: 4015,
   generatedDate: "2026-01-01",
   numStudents: 80,
@@ -189,6 +192,25 @@ function IconUserCircle({ className = "" }) {
   );
 }
 
+function IconSettings({ className = "" }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+    </svg>
+  );
+}
+
+function IconLogout({ className = "" }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  );
+}
+
 function ProgressGraph() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -232,7 +254,11 @@ function ProgressGraph() {
             >
               <IconMenu className="icon-md" />
             </button>
-            <p className="brand-text">FlexRoom.</p>
+            <img
+              src={flexroomWhiteLogo}
+              alt="FlexRoom"
+              className="topbar-logo-img"
+            />
           </div>
 
           <div className="d-flex align-items-center gap-2">
@@ -256,15 +282,19 @@ function ProgressGraph() {
               </nav>
 
               <div className="sidebar-footer-links">
-                <button type="button" className="sidebar-text-btn">
-                  Settings
+                <button type="button" className="sidebar-link">
+                  <IconSettings className="icon-sm" />
+                  <span>Settings</span>
                 </button>
-                <button type="button" className="sidebar-text-btn">
-                  Logout
+                <button type="button" className="sidebar-link">
+                  <IconLogout className="icon-sm" />
+                  <span>Logout</span>
                 </button>
-                <div className="fr-pill">
-                  FR
-                </div>
+                <img
+                  src={roundGreenLogo}
+                  alt="FlexRoom"
+                  className="sidebar-round-logo"
+                />
               </div>
             </aside>
           )}
@@ -272,6 +302,7 @@ function ProgressGraph() {
           <main className="main-panel">
             <div className="subject-strip">
               <h1 className="subject-title">{courseClass.className}</h1>
+              <p className="subject-subtitle">{courseClass.sectionLabel}</p>
             </div>
 
             <section className="chart-section">
