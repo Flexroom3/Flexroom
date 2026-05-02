@@ -35,7 +35,7 @@ const Login = () => {
     return (
         <div className="container-fluid d-flex justify-content-center align-items-center auth-background vh-100">
             <FaArrowLeft className="back-arrow-extreme" onClick={() => navigate('/')} /> 
-            <form className="auth-form p-5 text-center">
+            <form className="auth-form p-5 text-center" onSubmit={handleLogin}>
                 <h1 className="login-heading mb-5">Login</h1>
 
                 {/* Email with Icon */}
@@ -66,7 +66,12 @@ const Login = () => {
 
                 {/* (Forgot Password link) */}
                 <div className="text-start mb-5">
-                    <a href="#" className="forgot-password">Forgot Password?</a>
+                    <button
+                        type="button"
+                        className="forgot-password p-0 border-0 bg-transparent"
+                    >
+                        Forgot Password?
+                    </button>
                 </div>
 
                 {/* 3. The Role/Submit Buttons */}

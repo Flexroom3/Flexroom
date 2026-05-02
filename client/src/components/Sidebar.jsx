@@ -1,7 +1,7 @@
 import React from 'react';
 import { HiHome, HiCalendar, HiUserGroup, HiCog, HiLogout } from 'react-icons/hi';
 import styles from './Sidebar.module.css';
-import CircleLogo from './assets/Flexroom-circle.png';
+import CircleLogo from './assets/round-green.png';
 
 const Sidebar = ({ isOpen, userRole }) => {
     
