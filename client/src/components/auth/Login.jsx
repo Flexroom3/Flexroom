@@ -14,28 +14,43 @@ const Login = () => {
     const [userRole, setUserRole] = useState(''); // Stores 'student' or 'evaluator'
 
     //when the user tries to log in:
-    const handleLogin = (e) => {
+    const handleLogin = (e, nextRole = userRole) => {
         e.preventDefault(); //prevents page from reloading
         
         //capture data
         console.log("LOGIN ATTEMPT:");
         console.log("Email:", email);
         console.log("Password:", password);
-        console.log("Attempting to Login As:", userRole);
+        console.log("Attempting to Login As:", nextRole);
 
-        if (!userRole) {
+        if (!nextRole) {
             alert("Please select if you are logging in as a Student or Evaluator.");
             return;
         }
 
+        try {
+            const rememberedName = window.localStorage.getItem(
+                nextRole === 'student' ? 'flexroomDisplayName' : 'flexroomDisplayNameEvaluator'
+            );
+            if (!rememberedName && nextRole === 'student') {
+                window.localStorage.setItem('flexroomDisplayName', 'Apple');
+            }
+            if (!rememberedName && nextRole === 'evaluator') {
+                window.localStorage.setItem('flexroomDisplayNameEvaluator', 'Hayyan');
+            }
+        } catch (_) {
+            // ignore storage issues in local preview
+        }
+
         // --- WHERE THE BACKEND VERIFICATION CALL WILL GO LATER ---
         // (Next Victory: fetch('/api/login', { method: 'POST', ... }))
+        navigate(nextRole === 'student' ? '/flexroom/student' : '/flexroom/evaluator');
     };
 
     return (
         <div className="container-fluid d-flex justify-content-center align-items-center auth-background vh-100">
             <FaArrowLeft className="back-arrow-extreme" onClick={() => navigate('/')} /> 
-            <form className="auth-form p-5 text-center">
+            <form className="auth-form p-5 text-center" onSubmit={handleLogin}>
                 <h1 className="login-heading mb-5">Login</h1>
 
                 {/* Email with Icon */}
@@ -66,7 +81,7 @@ const Login = () => {
 
                 {/* (Forgot Password link) */}
                 <div className="text-start mb-5">
-                    <a href="#" className="forgot-password">Forgot Password?</a>
+                    <button type="button" className="forgot-password bg-transparent border-0 p-0">Forgot Password?</button>
                 </div>
 
                 {/* 3. The Role/Submit Buttons */}
@@ -76,14 +91,20 @@ const Login = () => {
                     <button 
                         type="submit" 
                         className={`btn-auth rounded-pill ${userRole === 'student' ? 'active' : ''}`}
-                        onClick={() => setUserRole('student')} // Sets the role for the form submission
+                        onClick={(e) => {
+                            setUserRole('student');
+                            handleLogin(e, 'student');
+                        }}
                     >
                         Login As Student
                     </button>
                     <button 
                         type="submit" 
                         className={`btn-auth rounded-pill ${userRole === 'evaluator' ? 'active' : ''}`}
-                        onClick={() => setUserRole('evaluator')} // Sets the role for the form submission
+                        onClick={(e) => {
+                            setUserRole('evaluator');
+                            handleLogin(e, 'evaluator');
+                        }}
                     >
                         Login As Evaluator
                     </button>

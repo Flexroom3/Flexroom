@@ -11,6 +11,29 @@ const Signup = () => {
     const [password, setPassword] = useState('');
     const [userRole, setUserRole] = useState('');
 
+    const handleSignup = (role) => {
+        if (!name.trim() || !email.trim() || !password.trim()) {
+            alert('Please fill in name, email, and password first.');
+            return;
+        }
+
+        if (!role) {
+            alert('Please choose whether you are signing up as a Student or Evaluator.');
+            return;
+        }
+
+        try {
+            window.localStorage.setItem('flexroomDisplayName', name.trim());
+            if (role === 'evaluator') {
+                window.localStorage.setItem('flexroomDisplayNameEvaluator', name.trim());
+            }
+        } catch (_) {
+            // ignore storage issues in local preview
+        }
+
+        navigate(role === 'student' ? '/flexroom/student' : '/flexroom/evaluator');
+    };
+
     return (
         <div className="container-fluid d-flex justify-content-center align-items-center auth-background vh-100">
             <FaArrowLeft className="back-arrow-extreme" onClick={() => navigate('/')} />
@@ -63,14 +86,20 @@ const Signup = () => {
                     <button 
                         type="button" 
                         className={`btn-auth rounded-pill ${userRole === 'student' ? 'active' : ''}`}
-                        onClick={() => setUserRole('student')}
+                        onClick={() => {
+                            setUserRole('student');
+                            handleSignup('student');
+                        }}
                     >
                         Sign Up As Student
                     </button>
                     <button 
                         type="button" 
                         className={`btn-auth rounded-pill ${userRole === 'evaluator' ? 'active' : ''}`}
-                        onClick={() => setUserRole('evaluator')}
+                        onClick={() => {
+                            setUserRole('evaluator');
+                            handleSignup('evaluator');
+                        }}
                     >
                         Sign Up As Evaluator
                     </button>
