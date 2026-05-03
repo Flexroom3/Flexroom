@@ -1,6 +1,13 @@
 /**
- * Plagiarism engine — Template Method pattern:
- * extract -> (pairwise) compare -> flag/report.
+ * Plagiarism engine — Template Method pattern.
+ *
+ * Pipeline (fixed order):
+ *   Step 1 — extractText(submission)
+ *            • PDF  → pdf-parse (PDFParse.getText)
+ *            • CPP  → read buffer as UTF-8 string (no PDF parsing)
+ *   Step 2 — compare(extractedTarget, extractedSource) → similarity %
+ *   Step 3 — report: aggregate rows + flags → comparison report
+ *
  * Separate from autograding (TestCase / CodeExecutionService).
  */
 const { PDFParse } = require('pdf-parse');
@@ -12,79 +19,153 @@ class MatchResults {
     this._lastReport = null;
   }
 
+  // ---------------------------------------------------------------------------
+  // Template Method — orchestrates Step 1 → Step 2 → Step 3
+  // ---------------------------------------------------------------------------
+
   /**
-   * Template method: run full repository comparison for one target.
    * @param {{ id: string|number; type: 'document'|'code'; fileName: string; buffer: Buffer }} targetSubmission
    * @param {Array<{ id: string|number; type: 'document'|'code'; fileName: string; buffer: Buffer }>} repository
    */
   async runAnalysis(targetSubmission, repository) {
-    const targetText = await this.extract(targetSubmission);
-    const comparisons = [];
+    const targetText = await this.extractText(targetSubmission);
+    /** @type {object[]} */
+    const comparisonRows = [];
 
     for (const source of repository) {
-      if (String(source.id) === String(targetSubmission.id)) continue;
-      if (source.type !== targetSubmission.type) continue;
+      if (!this.shouldComparePair(targetSubmission, source)) continue;
 
-      const sourceText = await this.extract(source);
-      const percentage = this.calculateSimilarityFromText(targetText, sourceText);
-      comparisons.push({
-        targetId: targetSubmission.id,
-        sourceId: source.id,
-        similarityPercentage: percentage,
-        flagged: this.generateFlagStatus(percentage),
-      });
+      const sourceText = await this.extractText(source);
+      const similarityPercentage = this.compare(targetText, sourceText);
+      comparisonRows.push(
+        this.buildComparisonRow(targetSubmission, source, similarityPercentage)
+      );
     }
 
-    this._lastReport = {
-      targetId: targetSubmission.id,
-      generatedAt: new Date().toISOString(),
-      comparisons,
-    };
+    this._lastReport = this.finalizeReport(targetSubmission, comparisonRows);
     return this._lastReport;
   }
 
+  shouldComparePair(target, source) {
+    if (String(source.id) === String(target.id)) return false;
+    if (source.type !== target.type) return false;
+    return true;
+  }
+
+  buildComparisonRow(target, source, similarityPercentage) {
+    return {
+      targetId: target.id,
+      sourceId: source.id,
+      similarityPercentage,
+      flagged: this.generateFlagStatus(similarityPercentage),
+    };
+  }
+
+  finalizeReport(targetSubmission, comparisonRows) {
+    return {
+      targetId: targetSubmission.id,
+      generatedAt: new Date().toISOString(),
+      comparisons: comparisonRows,
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Step 1 — Extract text (PDF vs CPP vs fallback)
+  // ---------------------------------------------------------------------------
+
   /**
-   * Step 1 — Extract textual content for comparison.
    * @param {{ type: 'document'|'code'; fileName: string; buffer: Buffer }} submission
+   * @returns {Promise<string>}
    */
-  async extract(submission) {
+  async extractText(submission) {
+    const fileName = (submission.fileName || '').toLowerCase();
+
+    if (this._isPdf(fileName)) {
+      return this._extractPdfText(submission.buffer);
+    }
+
+    if (this._isCpp(fileName)) {
+      return this._extractCppAsString(submission.buffer);
+    }
+
     if (submission.type === 'document') {
-      const lower = (submission.fileName || '').toLowerCase();
-      if (lower.endsWith('.pdf')) {
-        const parser = new PDFParse({ data: submission.buffer });
-        try {
-          const data = await parser.getText();
-          return (data.text || '').replace(/\s+/g, ' ').trim();
-        } finally {
-          await parser.destroy();
-        }
-      }
-      return submission.buffer.toString('utf8').replace(/\s+/g, ' ').trim();
+      return this._normalizeWhitespace(submission.buffer.toString('utf8'));
     }
 
     if (submission.type === 'code') {
-      return submission.buffer.toString('utf8').replace(/\s+/g, ' ').trim();
+      return this._extractCppAsString(submission.buffer);
     }
 
-    return submission.buffer.toString('utf8');
+    return this._normalizeWhitespace(submission.buffer.toString('utf8'));
+  }
+
+  /** @deprecated Use extractText — kept for callers that used the old name */
+  async extract(submission) {
+    return this.extractText(submission);
+  }
+
+  _isPdf(fileNameLower) {
+    return fileNameLower.endsWith('.pdf');
+  }
+
+  _isCpp(fileNameLower) {
+    return (
+      fileNameLower.endsWith('.cpp') ||
+      fileNameLower.endsWith('.cxx') ||
+      fileNameLower.endsWith('.cc')
+    );
   }
 
   /**
-   * Step 2 — Similarity metric (string-similarity Dice coefficient).
-   * @param {string|Buffer} targetContent
-   * @param {string|Buffer} sourceContent
+   * PDF: pdf-parse only (Step 1 branch for documents).
+   * @param {Buffer} buffer
+   */
+  async _extractPdfText(buffer) {
+    const parser = new PDFParse({ data: buffer });
+    try {
+      const data = await parser.getText();
+      return this._normalizeWhitespace(data.text || '');
+    } finally {
+      await parser.destroy();
+    }
+  }
+
+  /**
+   * CPP: read file contents as a string (Step 1 branch for code).
+   * No compilation — plain UTF-8 text for similarity comparison.
+   * @param {Buffer} buffer
+   */
+  _extractCppAsString(buffer) {
+    const raw = buffer.toString('utf8');
+    return this._normalizeWhitespace(raw);
+  }
+
+  _normalizeWhitespace(text) {
+    return String(text || '').replace(/\s+/g, ' ').trim();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Step 2 — Compare extracted strings
+  // ---------------------------------------------------------------------------
+
+  /**
+   * @param {string} extractedTarget
+   * @param {string} extractedSource
+   * @returns {number} percentage 0–100
+   */
+  compare(extractedTarget, extractedSource) {
+    return this.calculateSimilarityFromText(extractedTarget, extractedSource);
+  }
+
+  /**
+   * Same as compare(); accepts raw buffers/strings for convenience.
    */
   calculateSimilarity(targetContent, sourceContent) {
     const a = Buffer.isBuffer(targetContent) ? targetContent.toString('utf8') : String(targetContent);
     const b = Buffer.isBuffer(sourceContent) ? sourceContent.toString('utf8') : String(sourceContent);
-    return this.calculateSimilarityFromText(a, b);
+    return this.compare(a, b);
   }
 
-  /**
-   * @param {string} targetText
-   * @param {string} sourceText
-   * @returns {number} percentage 0-100
-   */
   calculateSimilarityFromText(targetText, sourceText) {
     const A = (targetText || '').trim();
     const B = (sourceText || '').trim();
@@ -93,10 +174,10 @@ class MatchResults {
     return Math.round(sim * 10000) / 100;
   }
 
-  /**
-   * Step 3 — Flag if similarity exceeds policy threshold (aligns with SQL computed column in schema).
-   * @param {number} percentage
-   */
+  // ---------------------------------------------------------------------------
+  // Step 3 — Flag threshold + expose report
+  // ---------------------------------------------------------------------------
+
   generateFlagStatus(percentage) {
     return percentage > 30;
   }
