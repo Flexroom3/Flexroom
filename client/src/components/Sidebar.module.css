@@ -1,11 +1,11 @@
 .sidebar {
-    height: 100%;
+    height: 100vh;
     width: 220px; 
     display: flex;
     flex-direction: column; /* Stacks top and bottom sections */
     background-color: #dfdfdf;
     padding: 20px 0; /* Vertical padding */
-    transition: width 0.3s ease; /* Smooth animation */
+    transition: width 0.3s ease-in-out; /* Smooth animation */
     border-right: 1px solid #ddd;
     overflow: hidden; /* Keeps things tidy when closing */
 }
@@ -13,7 +13,7 @@
 /*  the class applied when isOpen is false */
 .closed {
     width: 80px; /* Narrow width */
-}
+} 
 
 .topSection {
     flex: 1; /* This pushes the bottomSection to the bottom */
@@ -29,12 +29,13 @@
 
 .logoContainer {
     margin-top: 0; /* reduce this number to move the logo up, increase to move it down */
-    display: flex;
+    display: flex !important;; 
     justify-content: left;
     align-items: left;
-    padding: 15px;
+    padding: 15px !important;;
     background-color: #dfdfdf; 
     border-top: 1px solid #ddd;
+    width: 100% !important; /* Ensures it takes full width */
     flex-shrink: 0; /* to prevent the logo from getting squashed */
 }
 

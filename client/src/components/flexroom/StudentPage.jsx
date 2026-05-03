@@ -27,11 +27,9 @@ function readDisplayName() {
 
 function CourseBanner() {
   return (
-    <div className="fr-course-banner">
-      <h1 className="h3 mb-0" style={{ color: '#33362e' }}>
-        Operating Systems
-      </h1>
-      <p className="mb-0 small" style={{ color: '#4a5044' }}>BSCS-4J</p>
+    <div className="assignment-banner">
+      <h2>Operating Systems</h2>
+      <p>BSCS-4J</p>
     </div>
   );
 }
@@ -167,9 +165,7 @@ function StudentPage({ displayName: displayNameProp } = {}) {
 
           <aside className="col-lg-3">
             <section className="fr-card border mb-4">
-              <div className="fr-rubric-head">
-                Rubric
-              </div>
+              <div className="side-panel-header">Rubric</div>
               <ul className="list-unstyled mb-0 p-3" style={{ background: '#f5f6f3' }}>
                 {RUBRIC.map((item) => (
                   <li key={item.id} className="d-flex gap-2 py-3 border-bottom">
@@ -186,9 +182,7 @@ function StudentPage({ displayName: displayNameProp } = {}) {
             </section>
 
             <section className="fr-card border">
-              <div className="fr-rubric-head">
-                Private Comments
-              </div>
+              <div className="side-panel-header">Private Comments</div>
               <div className="p-2" style={{ background: '#f0f1ed' }}>
                 <label className="visually-hidden" htmlFor="student-private-comment">
                   Private comment

@@ -5,6 +5,9 @@ import Signup from './components/auth/Signup';
 import ProgressGraph from "./components/ProgressGraph";
 import StudentPage from './components/flexroom/StudentPage';
 import EvaluatorPage from './components/flexroom/EvaluatorPage';
+import DashboardLayout from './components/DashboardLayout';
+import StudentDashboard from './pages/StudentDashboard';
+import EvaluatorDashboard from './pages/EvaluatorDashboard';
 
 const FRAME_WIDTH = 1440;
 const FRAME_HEIGHT = 1024;
@@ -55,9 +58,6 @@ function ScaledFrame({ children }) {
     </div>
   );
 }
-import DashboardLayout from './components/DashboardLayout';
-import StudentDashboard from './pages/StudentDashboard';
-import EvaluatorDashboard from './pages/EvaluatorDashboard';
 
 function App() {
   return (

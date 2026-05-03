@@ -1,35 +1,25 @@
 import React, { useState } from 'react';
 import Sidebar from '../Sidebar';
 import Topbar from '../Topbar'; 
-import './flexroom.css';
+import './flexroom.css'; // Use this format, not the 'styles' object
 
-function Layout({
-  displayName,
-  userRole,
-  defaultSidebarOpen = true,
-  children,
-}) {
+function Layout({ displayName, userRole, defaultSidebarOpen = true, children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(defaultSidebarOpen);
-
-  // This function matches the 'toggleSidebar' prop in your Topbar code
   const handleToggle = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
     <div className="fr-shell">
-      {/* 1. Sidebar: Stays fixed to the left */}
-      <div className={`fr-sidebar-container ${isSidebarOpen ? 'open' : 'closed'}`}>
-        <Sidebar
-          userRole={userRole}
-          isOpen={isSidebarOpen}
-        />
-      </div>
-
-      {/* 2. Viewport: Contains Topbar and Main Content */}
-      <div className={`fr-viewport ${isSidebarOpen ? 'shifted' : 'full'}`}>
-        <Topbar
-          userName={displayName}     // Matches 'userName' in your Topbar.jsx
-          toggleSidebar={handleToggle} // Matches 'toggleSidebar' in your Topbar.jsx
-        />
+      {/* 1. Topbar stays at the top, fixed height */}
+      <Topbar 
+        userName={displayName} 
+        toggleSidebar={handleToggle} 
+      />
+      
+      {/* 2. Body container: Sidebar + Content side-by-side */}
+      <div className="fr-body">
+        <div className={`fr-sidebar-container ${isSidebarOpen ? 'open' : 'closed'}`}>
+          <Sidebar userRole={userRole} isOpen={isSidebarOpen} />
+        </div>
         
         <main className="fr-content-area">
           {children}
