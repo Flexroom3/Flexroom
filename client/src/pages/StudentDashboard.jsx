@@ -9,6 +9,7 @@ const StudentDashboard = () => {
             <h1>My Classes</h1>
             <div className={styles.grid}>
                 {classList.map((cls) => (
+                    // The spread operator {...cls} passes title and evaluatorName automatically
                     <ClassCard key={cls.id} {...cls} />
                 ))}
             </div>
