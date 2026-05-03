@@ -27,7 +27,7 @@ function readDisplayName() {
 
 function CourseBanner() {
   return (
-    <div className="assignment-banner">
+    <div className="fr-course-banner">
       <h2>Operating Systems</h2>
       <p>BSCS-4J</p>
     </div>
@@ -84,8 +84,8 @@ function StudentPage({ displayName: displayNameProp } = {}) {
     <Layout sidebarVariant="student" displayName={resolvedName} defaultSidebarOpen={false}>
       <CourseBanner />
 
-      <div className="fr-page-pad">
-        <div className="d-flex align-items-center justify-content-between mb-4">
+      <div className="fr-page-pad fr-student-page">
+        <div className="d-flex align-items-center justify-content-between mb-4 fr-student-toolbar">
           <Link
             to="/"
             className="text-dark"
@@ -95,9 +95,9 @@ function StudentPage({ displayName: displayNameProp } = {}) {
           </Link>
         </div>
 
-        <div className="row g-4">
-          <section className="col-lg-9">
-            <div className="fr-card p-4 p-lg-5">
+        <div className="fr-student-layout">
+          <section className="fr-student-main flex-column">
+            <div className="fr-card fr-assignment-main p-4 p-lg-4">
             <header className="d-flex flex-wrap justify-content-between gap-3 border-bottom pb-4 mb-4">
               <div>
                 <h2 style={{ color: '#2a2d26' }}>Assignment 1</h2>
@@ -109,62 +109,64 @@ function StudentPage({ displayName: displayNameProp } = {}) {
               <p className="small fr-muted">Due April 23, 2026</p>
             </header>
 
-            <div className="d-flex align-items-center justify-content-center rounded mb-4" style={{ minHeight: 180, background: '#e8eae4', color: '#8a8f82', fontSize: 30, fontWeight: 700 }}>
-              PDF
-            </div>
+            <div className="fr-upload-stack">
+              <div className="fr-pdf-box mb-3">
+                <span>PDF</span>
+              </div>
 
-            <div className="rounded p-4" style={{ background: '#f0f1ed' }}>
-              <button
-                type="button"
-                aria-label="Submission area"
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragOver(true);
-                }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={handleDrop}
-                onClick={() => inputRef.current?.click()}
-                className={`w-100 d-flex align-items-center justify-content-center fr-drop ${dragOver ? 'drag' : ''}`}
-              >
-                Drag and Drop
-              </button>
-              <input
-                ref={inputRef}
-                type="file"
-                accept={ACCEPT_INPUT}
-                className="d-none"
-                onChange={handleFileChange}
-              />
-
-              {selectedFile && (
-                <p className="small text-center mt-2 mb-0" style={{ color: '#4a5044' }}>
-                  Selected:{' '}
-                  <strong>{selectedFile.name}</strong>
-                </p>
-              )}
-
-              <div className="d-flex gap-2 justify-content-center mt-4 flex-wrap">
+              <div className="fr-upload-card rounded p-3">
                 <button
                   type="button"
+                  aria-label="Submission area"
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOver(true);
+                  }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={handleDrop}
                   onClick={() => inputRef.current?.click()}
-                  className="btn fr-green-btn"
+                  className={`w-100 d-flex align-items-center justify-content-center fr-drop ${dragOver ? 'drag' : ''}`}
                 >
-                  Select from PC
+                  Drag and Drop
                 </button>
-                <button
-                  type="button"
-                  onClick={handleTurnIn}
-                  className="btn fr-green-btn"
-                >
-                  Turn In
-                </button>
+                <input
+                  ref={inputRef}
+                  type="file"
+                  accept={ACCEPT_INPUT}
+                  className="d-none"
+                  onChange={handleFileChange}
+                />
+
+                {selectedFile && (
+                  <p className="small text-center mt-2 mb-0" style={{ color: '#4a5044' }}>
+                    Selected:{' '}
+                    <strong>{selectedFile.name}</strong>
+                  </p>
+                )}
+
+                <div className="fr-upload-actions mt-3">
+                  <button
+                    type="button"
+                    onClick={() => inputRef.current?.click()}
+                    className="btn fr-green-btn"
+                  >
+                    Select from PC
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleTurnIn}
+                    className="btn fr-green-btn"
+                  >
+                    Turn In
+                  </button>
+                </div>
               </div>
             </div>
             </div>
           </section>
 
-          <aside className="col-lg-3">
-            <section className="fr-card border mb-4">
+          <aside className="fr-student-sidebar">
+            <section className="fr-card border mb-3 fr-rubric-panel">
               <div className="side-panel-header">Rubric</div>
               <ul className="list-unstyled mb-0 p-3" style={{ background: '#f5f6f3' }}>
                 {RUBRIC.map((item) => (
@@ -181,7 +183,7 @@ function StudentPage({ displayName: displayNameProp } = {}) {
               </ul>
             </section>
 
-            <section className="fr-card border">
+            <section className="fr-card border fr-comment-panel">
               <div className="side-panel-header">Private Comments</div>
               <div className="p-2" style={{ background: '#f0f1ed' }}>
                 <label className="visually-hidden" htmlFor="student-private-comment">
