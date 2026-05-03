@@ -8,7 +8,8 @@ const SettingsPage = () => {
   const navigate = useNavigate();
 
   // Your handler functions
-  const handleEditProfile = () => console.log("Navigating to Change Profile Picture...");
+  // Updated handler to navigate to your new page
+  const handleEditProfile = () => navigate('/upload-picture');
   const handleChangePassword = () => navigate('/settings/change-password');
   const handleLogout = () => console.log("User logging out...");
 
@@ -21,6 +22,7 @@ const SettingsPage = () => {
         <div className={styles.profileSection}>
           <div className={styles.profileImageWrapper}>
             <div className={styles.largeProfileIcon}>👤</div>
+            {/* Now triggering the navigation */}
             <button className={styles.editProfileBtn} onClick={handleEditProfile}>
               <Pencil size={18} strokeWidth={2.5} color="#4b5320" />
             </button>

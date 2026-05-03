@@ -10,6 +10,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import EvaluatorDashboard from './pages/EvaluatorDashboard';
 import SettingsPage from './components/SettingsPage';
 import ChangePassword from './components/ChangePassword';
+import UploadPicture from './components/UploadPicture';
 
 const FRAME_WIDTH = 1440;
 const FRAME_HEIGHT = 1024;
@@ -71,6 +72,7 @@ function App() {
 
         {/* Add this flat route so it doesn't get the DashboardLayout */}
         <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/upload-picture" element={<UploadPicture />} />
         
         <Route
           path="/flexroom/student"
