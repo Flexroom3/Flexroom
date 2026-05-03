@@ -1,0 +1,45 @@
+/* ... keep previous variables and layout ... */
+
+/* Hero Logo Image Styling */
+.hero-logo-img {
+    max-width: 500px; /* Adjust based on original image scale */
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  
+  /* Footer Logo Image Styling */
+  .footer-logo-img {
+    height: 50px; /* Matches the height of the footer text */
+    width: auto;
+    opacity: 0.9;
+  }
+  
+  /* Updated Tagline - Positioning it under the image logo */
+  .tagline {
+    margin-top: -10px; 
+    background: linear-gradient(90deg, #fff, #f4a261, #fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+    font-size: 1.2rem;
+    font-family: sans-serif;
+  }
+  
+  /* Clean up the old CSS logo classes since we are using images now */
+  .brand-logo, .mortarboard-icon, .fr-circle {
+    display: none;
+  }
+  
+  /* Ensure footer items align perfectly */
+  .landing-footer {
+    background-color: var(--footer-gray);
+    padding: 10px 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed; /* Keeps it strictly at bottom */
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+  }
