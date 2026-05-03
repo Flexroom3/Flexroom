@@ -12,6 +12,7 @@ import SettingsPage from './components/SettingsPage';
 import ChangePassword from './components/ChangePassword';
 import UploadPicture from './components/UploadPicture';
 import CalendarPage from './pages/CalendarPage';
+import PeoplePage from './pages/PeoplePage';
 
 const FRAME_WIDTH = 1440;
 const FRAME_HEIGHT = 1024;
@@ -69,7 +70,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/progress" element={<ProgressGraph />} />
 
         {/* Add this flat route so it doesn't get the DashboardLayout */}
         <Route path="/change-password" element={<ChangePassword />} />
@@ -93,6 +93,8 @@ function App() {
         {/* Evaluator Route with Layout */}
         <Route path="/evaluator" element={<DashboardLayout userRole="evaluator" />}>
           <Route index element={<EvaluatorDashboard />} />
+          <Route path="people" element={<PeoplePage />} />
+          <Route path="progress/:studentId" element={<ProgressGraph />} />
         </Route>
       </Routes>
     </Router>

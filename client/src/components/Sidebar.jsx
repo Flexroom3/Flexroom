@@ -9,10 +9,14 @@ const Sidebar = ({ isOpen, userRole }) => {
     // 1. Group items that stay at the top
     // Added 'path' to these objects
     const mainNav = [
-        { name: 'Home', icon: <HiHome />, path: '/student' }, // Change '/home' to '/student'
-        userRole === 'student'
-            ? { name: 'Calendar', icon: <HiCalendar />, path: '/student/calendar' } // Updated path
-            : { name: 'People', icon: <HiUserGroup />, path: '/evaluator/people' }
+    { 
+        name: 'Home', 
+        icon: <HiHome />, 
+        path: userRole === 'student' ? '/student' : '/evaluator' // Dynamic path based on role
+    },
+    userRole === 'student'
+        ? { name: 'Calendar', icon: <HiCalendar />, path: '/student/calendar' } 
+        : { name: 'People', icon: <HiUserGroup />, path: '/evaluator/people' }
     ];
 
     // 2. Group items for the bottom
