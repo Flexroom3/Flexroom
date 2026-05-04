@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import './LandingPage.css';
 
 // Importing your specific assets
-import flexroomWhite from '../assets/Flexroom-white.png';
-import flexroomCircle from '../assets/round-white.png';
+import flexroomWhite from './assets/Flexroom-white.png';
+import flexroomCircle from './assets/round-white.png';
 
 const LandingPage = () => {
   const navigate = useNavigate();

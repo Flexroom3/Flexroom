@@ -17,10 +17,17 @@
   
   /* Updated Tagline - Positioning it under the image logo */
   .tagline {
-    margin-top: -10px; 
+    margin-top: -10px;
     background: linear-gradient(90deg, #fff, #f4a261, #fff);
+    
+    /* Vendor Prefix for Safari/Chrome */
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    
+    /* Standard Property for Compatibility */
+    background-clip: text;
+    color: transparent; /* Fallback if background-clip isn't supported */
+  
     font-weight: bold;
     font-size: 1.2rem;
     font-family: sans-serif;
