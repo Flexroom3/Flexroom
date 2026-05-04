@@ -1,38 +1,34 @@
-const express = require('express'); // 1. Load Express
-const sql = require('mssql');       // 2. Load SQL Driver
-const config = require('./dbconfig'); // 3. Load your DB Config
+const express = require('express');
+const sql = require('mssql');
+const config = require('./dbconfig');
 const rateLimit = require('express-rate-limit');
 const gradingRoutes = require('./routes/gradingRoutes');
-
-const app = express();               // 4. THIS IS THE MISSING LINE
-const PORT = 5000;
 const userRoutes = require('./routes/userRoutes');
-app.use('/api/users', userRoutes);
 
+const app = express();
+const PORT = 5000;
+
+// Standard JSON parser for simple requests
 app.use(express.json({ limit: '10mb' }));
-app.use('/api/grading', gradingRoutes);
+app.use(require('cors')())
+// Routes
+app.use('/api/users', userRoutes);
+app.use('/api/grading', gradingRoutes); // This will now handle the multipart assessments
 
-// Configure rate limiter for /api/message route
+// Rate Limiter
 const messageLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    windowMs: 15 * 60 * 1000,
+    max: 100,
 });
-
-// NOW you can define your routes
-// index.js (Main folder)
 
 app.get('/api/message', messageLimiter, async (req, res) => {
     let responseData = {
         backendMsg: "Hello from the Flexroom Backend!",
         sqlMsg: "Loading SQL data..."
     };
-
     try {
         let pool = await sql.connect(config);
-        
-        // CHANGE: query 'Settings' instead of 'USERS'
         let result = await pool.request().query("SELECT TOP 1 welcomeMessage FROM Settings");
-        
         if (result.recordset.length > 0) {
             responseData.sqlMsg = result.recordset[0].welcomeMessage;
         } else {
@@ -42,7 +38,6 @@ app.get('/api/message', messageLimiter, async (req, res) => {
         console.error("SQL Error: ", err);
         responseData.sqlMsg = "Database connection failed.";
     }
-
     res.json(responseData);
 });
 
