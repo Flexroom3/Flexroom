@@ -37,11 +37,9 @@ function readDisplayName() {
 
 function CourseBanner() {
   return (
-    <div className="fr-course-banner" style={{ background: '#a5a58d' }}>
-      <h1 className="h3 mb-0" style={{ color: '#33362e' }}>
-        Operating Systems
-      </h1>
-      <p className="mb-0 small" style={{ color: '#42483c' }}>BSCS-4J</p>
+    <div className="fr-course-banner">
+      <h2>Operating Systems</h2>
+      <p>BSCS-4J</p>
     </div>
   );
 }
@@ -139,8 +137,8 @@ function EvaluatorPage({ displayName: displayNameProp } = {}) {
     <Layout sidebarVariant="evaluator" displayName={resolvedName} defaultSidebarOpen={true}>
       <CourseBanner />
 
-      <div className="fr-page-pad">
-        <div className="d-flex align-items-center justify-content-between mb-4">
+      <div className="fr-page-pad fr-evaluator-page">
+        <div className="d-flex align-items-center justify-content-between mb-4 fr-evaluator-toolbar">
           <Link
             to="/"
             className="text-dark"

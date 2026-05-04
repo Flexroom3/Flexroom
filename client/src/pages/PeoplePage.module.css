@@ -1,0 +1,53 @@
+.pageContainer {
+    padding: 2rem;
+}
+
+/* The new header box */
+.headerContainer {
+    background-color: #f5f5f5; 
+    padding: 1rem;
+    margin-bottom: 2rem;
+    border-radius: 4px;
+    border: 1px solid #4a554a;
+}
+
+.classTitle {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #000;
+}
+
+.sectionTitle {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.table {
+    width: 100%;
+    max-width: 900px;
+    border-collapse: collapse;
+    background-color: #fff;
+    margin-bottom: 3rem; /* Spacing between tables */
+    border: 1px solid #4a554a;
+}
+
+.table th {
+    background-color: #d1d8c5; /* Slightly lighter shade for table header */
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #4a554a;
+}
+
+.table td {
+    padding: 12px;
+    border: 1px solid #4a554a;
+}
+
+.linkButton {
+    background: none;
+    border: none;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+}
