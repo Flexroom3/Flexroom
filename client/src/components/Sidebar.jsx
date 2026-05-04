@@ -30,7 +30,7 @@ const Sidebar = ({ isOpen, userRole }) => {
     { 
         name: 'Logout', 
         icon: <HiLogout />, 
-        path: '/logout' 
+        path: '/' 
     }
 ];
 

@@ -14,6 +14,7 @@ import ChangePassword from './components/ChangePassword';
 import UploadPicture from './components/UploadPicture';
 import CalendarPage from './pages/CalendarPage';
 import PeoplePage from './pages/PeoplePage';
+import SubmissionPage from './pages/SubmissionPage';
 
 const FRAME_WIDTH = 1440;
 const FRAME_HEIGHT = 1024;
@@ -81,6 +82,8 @@ function App() {
         <Route path="/progress" element={<ProgressGraph />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/upload-picture" element={<UploadPicture />} />
+
+        <Route path="/evaluator/submissions/:id" element={<SubmissionPage />} />
         
         <Route
           path="/flexroom/student"
@@ -90,6 +93,8 @@ function App() {
           path="/flexroom/evaluator"
           element={<ScaledFrame><EvaluatorPage /></ScaledFrame>}
         />
+
+        <Route path="/evaluator/class/:id" element={<EvaluatorPage />} />
 
         {/* Student Route with Layout */}
         <Route path="/student" element={<DashboardLayout userRole="student" />}>
