@@ -84,8 +84,6 @@ function App() {
         <Route path="/progress" element={<ProgressGraph />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/upload-picture" element={<UploadPicture />} />
-
-        <Route path="/evaluator/submissions/:id" element={<SubmissionPage />} />
         
         <Route
           path="/flexroom/student"
@@ -111,6 +109,7 @@ function App() {
           <Route path="people" element={<PeoplePage />} />
           <Route path="progress/:studentId" element={<ProgressGraph />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="/evaluator/submissions/:id" element={<SubmissionPage />} />
         </Route>
 
         <Route path="/create-doc-assignment" element={<DashboardLayout userRole="evaluator" />}>
