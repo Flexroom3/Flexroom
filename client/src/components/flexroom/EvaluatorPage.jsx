@@ -51,14 +51,27 @@ function EvaluatorModal({ open, onClose }) {
           <button onClick={onClose} className="btn-close btn-close-white" aria-label="Close"></button>
         </div>
         <div className="p-4 d-grid gap-3">
-          <Link to="/upload-coding-assessment" className="btn btn-outline-dark py-3 d-flex flex-column align-items-center" style={{ borderColor: '#7d8b63' }}>
+          {/* Updated paths to match your folder structure requirements */}
+          <Link 
+            to="/create-code-assignment" 
+            className="btn btn-outline-dark py-3 d-flex flex-column align-items-center" 
+            style={{ borderColor: '#7d8b63' }}
+            onClick={onClose} // Close modal on redirect
+          >
             <strong>Upload Coding Assessment</strong>
             <small className="text-muted">Automated test cases & scripts</small>
           </Link>
-          <Link to="/upload-doc-assessment" className="btn btn-outline-dark py-3 d-flex flex-column align-items-center" style={{ borderColor: '#7d8b63' }}>
+
+          <Link 
+            to="/create-doc-assignment" 
+            className="btn btn-outline-dark py-3 d-flex flex-column align-items-center" 
+            style={{ borderColor: '#7d8b63' }}
+            onClick={onClose} // Close modal on redirect
+          >
             <strong>Upload Doc Assessment</strong>
             <small className="text-muted">Instruction manuals or PDFs</small>
           </Link>
+          
           <button type="button" onClick={onClose} className="btn btn-light border mt-2">Cancel</button>
         </div>
       </div>

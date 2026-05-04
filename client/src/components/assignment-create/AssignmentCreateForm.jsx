@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { postCreateAssessment } from '../../api/assignmentsApi';
 import styles from './AssignmentCreateForm.module.css';
@@ -13,31 +12,42 @@ function formatDisplayDate(d) {
 }
 
 function PdfDropzone({ label, file, onChange, inputId }) {
-    const onDrop = useCallback(
-        (accepted) => {
-            if (accepted && accepted[0]) onChange(accepted[0]);
-        },
-        [onChange]
-    );
+    const [isDragActive, setIsDragActive] = useState(false);
+    const inputRef = useRef(null);
 
-    const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
-        onDrop,
-        accept: { 'application/pdf': ['.pdf'] },
-        maxFiles: 1,
-        multiple: false,
-        noClick: true,
-    });
+    const handleFile = (f) => {
+        if (f && f.type === 'application/pdf') onChange(f);
+    };
 
     return (
         <div className={styles.dropSection}>
             <div className={styles.dropLabel}>{label}</div>
             <div
-                {...getRootProps()}
                 className={`${styles.dropZone} ${isDragActive ? styles.dropZoneActive : ''}`}
+                onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragActive(true);
+                }}
+                onDragLeave={() => setIsDragActive(false)}
+                onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragActive(false);
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        handleFile(e.dataTransfer.files[0]);
+                    }
+                }}
+                onClick={() => inputRef.current?.click()}
             >
-                <input {...getInputProps()} id={inputId} />
+                <input 
+                    type="file" 
+                    accept="application/pdf" 
+                    ref={inputRef} 
+                    id={inputId} 
+                    style={{ display: 'none' }}
+                    onChange={(e) => handleFile(e.target.files[0])}
+                />
                 <p className={styles.dropHint}>Drag and Drop</p>
-                <button type="button" className={styles.selectBtn} onClick={(e) => { e.stopPropagation(); open(); }}>
+                <button type="button" className={styles.selectBtn}>
                     Select from PC
                 </button>
                 {file && <div className={styles.fileName}>{file.name}</div>}
