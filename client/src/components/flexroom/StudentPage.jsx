@@ -72,12 +72,36 @@ function StudentPage({ displayName: displayNameProp } = {}) {
     setFileIfAllowed(file);
   };
 
-  const handleTurnIn = () => {
+  const handleTurnIn = async () => {
     if (!selectedFile) {
-      alert('Please select a .txt or .docx file before turning in.');
+      alert('Please select a file before turning in.');
       return;
     }
-    alert(`Turned in: ${selectedFile.name}`);
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    // Hardcoded IDs for now—replace with dynamic IDs from your route/props later
+    formData.append('assignmentId', '1'); 
+    formData.append('userId', resolvedName); 
+    formData.append('role', 'student');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/files/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert(`Successfully turned in: ${selectedFile.name}`);
+        setSelectedFile(null); // Clear selection on success
+      } else {
+        const errorData = await response.json();
+        alert(`Upload failed: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Server error during upload.");
+    }
   };
 
   return (

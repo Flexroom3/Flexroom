@@ -70,101 +70,31 @@ function isTestCasesComplete(items) {
  * @param {{ variant: 'document' | 'code' }} props
  */
 export default function AssignmentCreateForm({ variant }) {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const outlet = useOutletContext();
-    const setCourseHeader = outlet?.setCourseHeader;
-
-    const defaults = useMemo(
-        () => ({
-            courseTitle: location.state?.courseTitle ?? 'Operating Systems',
-            courseCode: location.state?.courseCode ?? 'BSCS-4J',
-        }),
-        [location.state]
-    );
-
-    const evaluatorName = useMemo(() => {
-        try {
-            return window.localStorage.getItem('flexroomDisplayNameEvaluator') || 'Rida Amir';
-        } catch {
-            return 'Rida Amir';
-        }
-    }, []);
-
-    const todayLabel = useMemo(() => formatDisplayDate(new Date()), []);
-
-    const [title, setTitle] = useState('');
-    const [titleActive, setTitleActive] = useState(false);
-    const [dueDate, setDueDate] = useState('');
-    const [dueActive, setDueActive] = useState(false);
-    const [totalMarks, setTotalMarks] = useState('');
-    const [marksActive, setMarksActive] = useState(false);
-
-    const [questionPdf, setQuestionPdf] = useState(null);
-    const [solutionKey, setSolutionKey] = useState(null);
-
-    const [rubricItems, setRubricItems] = useState([]);
-    const [testCases, setTestCases] = useState([]);
-
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
-
-    const dueDateLabel = useMemo(() => {
-        if (!dueDate) return '';
-        const d = new Date(`${dueDate}T12:00:00`);
-        return Number.isNaN(d.getTime()) ? dueDate : formatDisplayDate(d);
-    }, [dueDate]);
-
-    useEffect(() => {
-        if (!setCourseHeader) return undefined;
-        setCourseHeader({ title: defaults.courseTitle, code: defaults.courseCode });
-        return () => setCourseHeader({ title: null, code: null });
-    }, [defaults.courseTitle, defaults.courseCode, setCourseHeader]);
-
-    const addRubricRow = () => {
-        setRubricItems((prev) => [...prev, { id: newId(), description: '', marks: '' }]);
-    };
-
-    const updateRubric = (id, patch) => {
-        setRubricItems((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-    };
-
-    const addTestCaseRow = () => {
-        setTestCases((prev) => [...prev, { id: newId(), inputText: '', marks: '' }]);
-    };
-
-    const updateTestCase = (id, patch) => {
-        setTestCases((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
-    };
-
-    const canSubmit = useMemo(() => {
-        const base =
-            title.trim() !== '' &&
-            dueDate !== '' &&
-            questionPdf != null &&
-            isRubricComplete(rubricItems);
-        if (variant === 'code') {
-            return base && isTestCasesComplete(testCases);
-        }
-        return base;
-    }, [title, dueDate, questionPdf, rubricItems, testCases, variant]);
+    // ... existing state and hooks ...
 
     const handleCreateAssignment = async () => {
         if (!canSubmit || submitting) return;
         setError(null);
         setSuccess(false);
         setSubmitting(true);
+
         try {
+            // 1. Prepare FormData for multipart/form-data submission
             const formData = new FormData();
+            
+            // Basic Info
             formData.append('title', title.trim());
             formData.append('dueDate', dueDate);
             formData.append('assessmentType', variant === 'code' ? 'code' : 'document');
             formData.append('courseTitle', defaults.courseTitle);
             formData.append('courseCode', defaults.courseCode);
+            formData.append('role', 'evaluator'); // Identifies this as an instructor upload
+
             if (totalMarks.trim() !== '') {
                 formData.append('totalMarks', totalMarks.trim());
             }
+
+            // 2. Append JSON data as strings
             formData.append(
                 'rubric',
                 JSON.stringify(
@@ -175,6 +105,7 @@ export default function AssignmentCreateForm({ variant }) {
                     }))
                 )
             );
+
             if (variant === 'code') {
                 formData.append(
                     'testCases',
@@ -187,16 +118,26 @@ export default function AssignmentCreateForm({ variant }) {
                     )
                 );
             }
-            formData.append('questionPdf', questionPdf);
+
+            // 3. Append the binary Files
+            // These must match the field names expected by your Multer middleware
+            if (questionPdf) {
+                formData.append('questionPdf', questionPdf);
+            }
+            
             if (solutionKey) {
                 formData.append('solutionKey', solutionKey);
             }
 
+            // 4. Send to the API
+            // Note: We use postCreateAssessment which should handle the Axios/Fetch POST
             await postCreateAssessment(formData);
+
             setSuccess(true);
             window.setTimeout(() => {
                 navigate('/evaluator', { replace: true });
             }, 900);
+
         } catch (e) {
             const msg =
                 e?.response?.data?.message ||
