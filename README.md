@@ -6,7 +6,35 @@ This file describes the **`main`** branch (the default branch on GitHub) and map
 
 **Canonical remote:** `https://github.com/Flexroom3/Flexroom`  
 **Product / schema notes:** [`project-context.md`](project-context.md)  
-**Requirements / use cases (PDF):** [`UseCases.pdf`](UseCases.pdf) (repository root)
+**Formal use cases (source document):** [`UseCases.pdf`](UseCases.pdf) — seventeen numbered scenarios below are summarized from that PDF so contributors can trace behaviour to requirements without opening the file every time.
+
+---
+
+## Use cases ([`UseCases.pdf`](UseCases.pdf))
+
+The PDF defines **17** use cases (identifiers **UC-01** through **UC-17**). The table lists each identifier, title, main actors, stated priority, and how the current **`main`** codebase relates (implemented surface, data model only, or still aspirational).
+
+| ID | Name (from PDF) | Actors | Priority | Relation to `main` |
+|----|-----------------|--------|----------|-------------------|
+| UC-01 | Upload Assessment | Evaluator | High | [`POST /api/grading/assessments`](routes/gradingRoutes.js) persists assessments; full “upload assessment” UI flow in the PDF is only partly reflected in dashboards and related screens—see also divergent branch `feature/evaluator-assignment-create` for a dedicated creation wizard. |
+| UC-02 | Add Rubric | Evaluator | Medium | [`Rubrics`](db/schema.sql) table and [`server/rubric/Rubric.js`](server/rubric/Rubric.js); end-to-end “add rubric” UX may still need wiring to match every step in the PDF. |
+| UC-03 | Add Deadline | Evaluator | Medium | `Assessment.dueDate` in [`db/schema.sql`](db/schema.sql) and assessment create/update paths; calendar integration for “adds deadline to calendar” is a product extension. |
+| UC-04 | Upload Key | Evaluator | Low | `SolutionKey` / `SolutionKeyName` on `Assessment` ([`db/schema.sql`](db/schema.sql)); visibility rules “after deadline only” are specified in the PDF and should be enforced in API/UI when implemented. |
+| UC-05 | Evaluate Documents | Evaluator | High | Document-type assessments and submissions exist; in-app marking workflow should align with rubric and grade storage ([`Grades`](db/schema.sql)). |
+| UC-06 | Display Feedback | Evaluator, System | Low | Autograde writes `Feedback` on [`Grades`](db/schema.sql); student-visible feedback surfaces live under [`/student`](client/src/App.js) and related components as implemented. |
+| UC-07 | Upload Code File | Student | High | [`POST /api/grading/submissions`](routes/gradingRoutes.js) accepts multipart uploads; PDF requires **C++** and deadline checks—enforce file type and dates in UI/API as needed. |
+| UC-08 | Upload Document | Student | High | Same submission endpoint; PDF specifies **PDF** uploads and drag/drop or file-picker UX—implement in the client to match (see topic branch `feature/evaluator-assignment-create` for a dropzone-heavy pattern). |
+| UC-09 | Enrol in course | Student | Medium | [`POST /api/users/join-class`](routes/userRoutes.js) joins by class code and updates `CourseClass.numStudents`. |
+| UC-10 | Self evaluate code | Student | Low | Depends on post-deadline access to rubric, test cases, and key; backend pieces include [`TestCases`](db/schema.sql), autograde, and solution key fields—compose into a dedicated “self evaluation” UI per PDF. |
+| UC-11 | Self evaluate document | Student | Low | PDF body describes student comparing a **PDF** solution to key and rubric after deadline; treat as student-facing feature to implement alongside UC-10. |
+| UC-12 | Sign up | Evaluator, Student | High | [`/signup`](client/src/App.js) → [`Signup.jsx`](client/src/components/auth/Signup.jsx); schema enforces **@gmail.com** pattern and password length in [`db/schema.sql`](db/schema.sql) / [`project-context.md`](project-context.md). |
+| UC-13 | Generate course | Evaluator | High | [`GET /api/users/generate-code`](routes/userRoutes.js) returns a code for evaluators; full “course + TA codes” lifecycle in the PDF may need extra tables/API beyond current `CourseClass` usage. |
+| UC-14 | Login verification | System, User | High | [`POST /api/users/login`](routes/userRoutes.js) and [`Login.jsx`](client/src/components/auth/Login.jsx) via [`AuthService`](server/singleton/AuthService.js). |
+| UC-15 | Evaluate code | System (evaluator configures) | High | [`POST /api/grading/autograde`](routes/gradingRoutes.js), [`server/testCase/TestCase.js`](server/testCase/TestCase.js), rubric “correctness” and manual sections as described in the PDF. |
+| UC-16 | Display charts | System | Medium | [`ProgressGraph`](client/src/components/ProgressGraph.jsx) and **Recharts** under evaluator/student routes; PDF lists chart types and metrics—extend queries/UI to match each option. |
+| UC-17 | Detect plagiarism | System | High | [`POST /api/grading/plagiarism/run`](routes/gradingRoutes.js) and [`MatchResults`](server/plagiarism/MatchResults.js) / [`db/schema.sql`](db/schema.sql); PDF allows evaluator-defined **minimum flag %**—today’s service compares peers on the same assessment (align thresholds with product spec). |
+
+**Cross-cutting themes from the PDF:** evaluator must be **logged in** before class/assessment actions; students need account + enrolment + valid deadline to submit; **alternate flows** cover invalid data, missing entities, late deletion, and connectivity failures—when adding endpoints, return clear HTTP errors and messages consistent with those branches.
 
 ---
 
