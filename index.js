@@ -2,9 +2,15 @@ const express = require('express'); // 1. Load Express
 const sql = require('mssql');       // 2. Load SQL Driver
 const config = require('./dbconfig'); // 3. Load your DB Config
 const rateLimit = require('express-rate-limit');
+const gradingRoutes = require('./routes/gradingRoutes');
 
 const app = express();               // 4. THIS IS THE MISSING LINE
 const PORT = 5000;
+const userRoutes = require('./routes/userRoutes');
+app.use('/api/users', userRoutes);
+
+app.use(express.json({ limit: '10mb' }));
+app.use('/api/grading', gradingRoutes);
 
 // Configure rate limiter for /api/message route
 const messageLimiter = rateLimit({

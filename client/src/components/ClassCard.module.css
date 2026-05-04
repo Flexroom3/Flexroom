@@ -27,23 +27,67 @@
     box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
 }
 
-.cardHeader h3 {
-    margin: 0;
-    font-size: 1rem; /* Slightly smaller to fit */
-    font-weight: 600;
+.topSection {
+  height: 120px; /* FIX THIS: All cards will now be this height */
+  background-color: #8fa075; /* Your specific green color */
+  color: white;
+  padding: 30px 20px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /*adding*/
+  font-size: 1rem; /* Slightly smaller to fit */
 }
 
-/* The Grey Bottom Section */
-.cardBody {
-    background-color: #f8f9fa; /* Light grey base */
-    padding: 15px 20px;
-    flex-grow: 1; /* Occupy the remaining space */
-    display: flex;
-    flex-direction: column; /* Stack icon and text vertically */
-    align-items: center; /* Center horizontally */
-    justify-content: center; /* Center vertically */
-    gap: 10px;
-    border-top: 1px solid #e1e1e1;
+.bottomSection {
+  flex-grow: 1; /* This tells it to fill all remaining vertical space */
+  background-color: #e4e6e2; /* The grey color */
+  padding: 5px 15px 15px 15px;
+ /*added*/
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.assignmentRow {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+}
+
+.assignmentLink {
+  text-decoration: none; /* Removes the underline */
+  color: inherit;        /* Keeps your text color */
+  display: block;
+  padding: 0;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.assignmentLink:hover {
+  background-color: #d1d3cf; /* A subtle grey highlight on hover */
+  cursor: pointer;
+}
+
+.dueDate {
+  font-weight: 600;
+  color: #333; /* Darker text for "Due today" */
+}
+
+.assignmentTitle {
+  color: #555; /* Slightly lighter for assignment name */
+}
+
+.evaluatorAssignmentTitle {
+  font-size: 14px; /* Bigger */
+  color: #555; /* Slightly darker/different color */
+}
+
+.noAssignments {
+  font-size: 0.85rem;
+  color: #7a7a7a;    /* A soft grey that is legible but not distracting */
+  font-style: italic;
+  margin: 10px;      /* Adds a little breathing room inside the grey box */
 }
 
 .iconWrapper {
