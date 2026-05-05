@@ -41,6 +41,14 @@ router.post('/join-class', auth.authorize(['student']), async (req, res) => {
             .input('cid', sql.Int, classId)
             .query('UPDATE CourseClass SET numStudents = numStudents + 1 WHERE classID = @cid');
 
+        await pool.request()
+            .input('uid', sql.Int, req.user.userId)
+            .input('cid', sql.Int, classId)
+            .query(`
+                IF NOT EXISTS (SELECT 1 FROM ClassEnrollment WHERE userID = @uid AND classID = @cid)
+                INSERT INTO ClassEnrollment (userID, classID) VALUES (@uid, @cid)
+            `);
+
         res.json({ ok: true, message: 'Successfully joined class', classId });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -51,6 +59,41 @@ router.post('/join-class', auth.authorize(['student']), async (req, res) => {
 router.get('/generate-code', auth.authorize(['evaluator']), (req, res) => {
     const code = Math.floor(100000 + Math.random() * 900000); // 6-digit
     res.json({ code });
+});
+
+/** Student: classes they joined */
+router.get('/student/classes', auth.authorize(['student']), async (req, res) => {
+    try {
+        const pool = await ConnectionManager.getInstance().getPool();
+        const result = await pool.request()
+            .input('uid', sql.Int, req.user.userId)
+            .query(`
+                SELECT cc.classID, cc.className, cc.classCode
+                FROM ClassEnrollment e
+                INNER JOIN CourseClass cc ON cc.classID = e.classID
+                WHERE e.userID = @uid
+                ORDER BY cc.className
+            `);
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+/** Evaluator: all classes (replace with owner filter when CourseClass has evaluator link) */
+router.get('/evaluator/classes', auth.authorize(['evaluator']), async (req, res) => {
+    try {
+        const pool = await ConnectionManager.getInstance().getPool();
+        const result = await pool.request()
+            .query(`
+                SELECT classID, className, classCode
+                FROM CourseClass
+                ORDER BY classID
+            `);
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 module.exports = router;

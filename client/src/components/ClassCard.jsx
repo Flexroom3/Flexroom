@@ -1,7 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from './ClassCard.module.css'; // Assuming you use modules
 
-const ClassCard = ({ title, evaluatorName, section, assignments = [], role }) => {
+const ClassCard = ({ id, title, evaluatorName, section, assignments = [], role }) => {
     // This variable changes based on the role
     const titleClass = role === 'evaluator' ? styles.evaluatorAssignmentTitle : styles.assignmentTitle;
     
@@ -17,23 +18,30 @@ const ClassCard = ({ title, evaluatorName, section, assignments = [], role }) =>
 
             <div className={styles.bottomSection}>
                 <div className={styles.bottomSection}>
-                    {assignments && assignments.length > 0 ? (
-                    assignments.map((assignment) => (
-                    <a 
-                     key={assignment.id} 
-                     href={`/assignments/${assignment.id}`} 
-                     className={styles.assignmentLink}
-                     >
-                     <div className={styles.assignmentRow}>
-                     {/* Conditionally render due date ONLY if it exists */}
-                     {assignment.dueDate && <span className={styles.dueDate}>{assignment.dueDate}</span>}
-                        <span className={titleClass}>{assignment.title}</span>
-                 </div>
-                </a>
-                ))
-                 ) : (
-                <p className={styles.noAssignments}>No uploaded assignments due</p>
-                )}
+                    {role === 'student' && id != null ? (
+                        <Link to={`/student/class/${id}`} className={styles.assignmentLink}>
+                            <div className={styles.assignmentRow}>
+                                <span className={titleClass}>Open class assignments</span>
+                            </div>
+                        </Link>
+                    ) : assignments && assignments.length > 0 ? (
+                        assignments.map((assignment) => (
+                            <a
+                                key={assignment.id}
+                                href={assignment.link || `/assignments/${assignment.id}`}
+                                className={styles.assignmentLink}
+                            >
+                                <div className={styles.assignmentRow}>
+                                    {assignment.dueDate && (
+                                        <span className={styles.dueDate}>{assignment.dueDate}</span>
+                                    )}
+                                    <span className={titleClass}>{assignment.title}</span>
+                                </div>
+                            </a>
+                        ))
+                    ) : (
+                        <p className={styles.noAssignments}>No uploaded assignments due</p>
+                    )}
                 </div>
             </div>
         </div>

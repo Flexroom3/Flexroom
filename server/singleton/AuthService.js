@@ -29,10 +29,11 @@ class AuthService {
         const isMatch = await bcrypt.compare(password, user.Password);
         if (!isMatch) throw new Error('Invalid credentials');
 
+        const secret = process.env.JWT_SECRET || 'flexroom-dev-jwt-secret';
         // Sign the token with their Role
         const token = jwt.sign(
             { userId: user.UserID, role: user.UserRole, name: user.Name },
-            process.env.JWT_SECRET,
+            secret,
             { expiresIn: '1d' }
         );
 
@@ -46,7 +47,8 @@ class AuthService {
             if (!token) return res.status(401).json({ error: 'Access denied' });
 
             try {
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                const secret = process.env.JWT_SECRET || 'flexroom-dev-jwt-secret';
+                const decoded = jwt.verify(token, secret);
                 req.user = decoded;
 
                 if (roles.length && !roles.includes(decoded.role)) {

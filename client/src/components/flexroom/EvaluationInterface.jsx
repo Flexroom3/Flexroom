@@ -1,103 +1,148 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Layout from './Layout';
 import RubricPanel from './RubricPanel';
 import DocumentViewer from './DocumentViewer';
 import CodeViewer from './CodeViewer';
 import styles from './EvaluationInterface.module.css';
+import { downloadAssessmentKey, fetchSubmissionFileBlob } from '../../api/assignmentsApi';
+import { getStoredUser } from '../auth/ProtectedRoute';
 
-// Mock data fetching based on assignmentId and studentId (params)
-// and assignmentType (from location state)
 const mockDocData = {
-  title: "Assignment 1",
-  course: { title: "Operating Systems", code: "BSCS-4J" },
-  type: "document",
-  submissionUrl: "/mock/student_submission.pdf",
-  keyUrl: "/mock/assignment_key.pdf",
-  rubric: [
-    { id: 'Q1', criteria: 'Q1', maxMarks: 2 },
-    { id: 'Q2', criteria: 'Q2', maxMarks: 2 },
-    { id: 'Q3', criteria: 'Q3', maxMarks: 3 },
-    { id: 'Q4', criteria: 'Q4', maxMarks: 2 },
-    { id: 'Q5', criteria: 'Q5', maxMarks: 3 },
-    { id: 'Q6', criteria: 'Q6', maxMarks: 3 },
-  ]
+    title: 'Assignment 1',
+    course: { title: 'Operating Systems', code: 'BSCS-4J' },
+    type: 'document',
+    rubric: [
+        { id: 'Q1', criteria: 'Q1', maxMarks: 2 },
+        { id: 'Q2', criteria: 'Q2', maxMarks: 2 },
+        { id: 'Q3', criteria: 'Q3', maxMarks: 3 },
+        { id: 'Q4', criteria: 'Q4', maxMarks: 2 },
+        { id: 'Q5', criteria: 'Q5', maxMarks: 3 },
+        { id: 'Q6', criteria: 'Q6', maxMarks: 3 },
+    ],
 };
 
 const mockCodeData = {
-  title: "Assignment 2",
-  course: { title: "Operating Systems", code: "BSCS-4J" },
-  type: "code",
-  submissionCode: `#include <stdio.h>\nint main() {\n  // Student Code\n}`,
-  keyCode: `#include <stdio.h>\nint main() {\n  // Key Code\n}`,
-  rubric: [
-    { id: 1, criteria: 'Precision', maxMarks: 33 },
-    { id: 2, criteria: 'Logic', maxMarks: 34 },
-    { id: 3, criteria: 'Correct Datastructure', maxMarks: 33 },
-  ],
-  testCases: [
-    { data: "x = 3,\ny = -2" },
-    { data: "x = 0,\ny = -2" },
-    { data: "x = -5,\ny = -2" },
-  ]
+    title: 'Assignment 2',
+    course: { title: 'Operating Systems', code: 'BSCS-4J' },
+    type: 'code',
+    submissionCode: `#include <stdio.h>\nint main() {\n  // Student Code\n}`,
+    keyCode: `#include <stdio.h>\nint main() {\n  // Key Code\n}`,
+    rubric: [
+        { id: 1, criteria: 'Precision', maxMarks: 33 },
+        { id: 2, criteria: 'Logic', maxMarks: 34 },
+        { id: 3, criteria: 'Correct Datastructure', maxMarks: 33 },
+    ],
+    testCases: [{ data: 'x = 3,\ny = -2' }, { data: 'x = 0,\ny = -2' }, { data: 'x = -5,\ny = -2' }],
 };
 
 function EvaluationInterface() {
-  const { assignmentId, studentId } = useParams();
-  const location = useLocation();
-  const assignmentType = location.state?.type; // Crucial: passed during navigation
+    const { assignmentId, studentId } = useParams();
+    const location = useLocation();
+    const assignmentType = location.state?.type || 'document';
+    const submissionId = location.state?.submissionId;
 
-  // In real app: fetch data here based on type/ids
-  const assignmentData = assignmentType === 'code' ? mockCodeData : mockDocData;
+    const baseData = assignmentType === 'code' ? mockCodeData : mockDocData;
 
-  const [marksObtained, setMarksObtained] = useState({});
+    const [marksObtained, setMarksObtained] = useState({});
+    const [docUrls, setDocUrls] = useState({ submission: null, key: null });
+    const [docLoading, setDocLoading] = useState(false);
+    const [docError, setDocError] = useState(null);
+    const blobRef = useRef({ submission: null, key: null });
 
-  const handleMarkChange = (id, value) => {
-    setMarksObtained(prev => ({ ...prev, [id]: value }));
-  };
+    useEffect(() => {
+        if (assignmentType !== 'document' || !assignmentId) return undefined;
 
-  const totalMarks = assignmentData.rubric.reduce((sum, item) => sum + item.maxMarks, 0);
+        let cancelled = false;
 
-  return (
-    <Layout sidebarVariant="evaluator" displayName="Apple">
-      <div className={styles.courseBanner}>
-        <h2>{assignmentData.course.title}</h2>
-        <p>{assignmentData.course.code}</p>
-      </div>
+        (async () => {
+            setDocLoading(true);
+            setDocError(null);
+            try {
+                let subUrl;
+                if (submissionId) {
+                    const subBlob = await fetchSubmissionFileBlob(submissionId);
+                    if (!cancelled) subUrl = URL.createObjectURL(subBlob);
+                }
+                const keyBlob = await downloadAssessmentKey(assignmentId);
+                const keyUrl = !cancelled ? URL.createObjectURL(keyBlob) : null;
+                if (cancelled) {
+                    if (subUrl) URL.revokeObjectURL(subUrl);
+                    if (keyUrl) URL.revokeObjectURL(keyUrl);
+                    return;
+                }
+                blobRef.current = { submission: subUrl || null, key: keyUrl };
+                setDocUrls(blobRef.current);
+            } catch (e) {
+                if (!cancelled) setDocError(e.message || 'Could not load documents');
+            } finally {
+                if (!cancelled) setDocLoading(false);
+            }
+        })();
 
-      <div className={styles.evaluationGrid}>
-        {/* Main Media Area */}
-        <main className={styles.mediaArea}>
-          {assignmentData.type === 'code' ? (
-            <CodeViewer
-              title={assignmentData.title}
-              submissionCode={assignmentData.submissionCode}
-              keyCode={assignmentData.keyCode}
-              testCases={assignmentData.testCases}
-            />
-          ) : (
-            <DocumentViewer
-              title={assignmentData.title}
-              submissionUrl={assignmentData.submissionUrl}
-              keyUrl={assignmentData.keyUrl}
-            />
-          )
-          }
-        </main>
+        return () => {
+            cancelled = true;
+            if (blobRef.current.submission) URL.revokeObjectURL(blobRef.current.submission);
+            if (blobRef.current.key) URL.revokeObjectURL(blobRef.current.key);
+            blobRef.current = { submission: null, key: null };
+        };
+    }, [assignmentType, assignmentId, submissionId]);
 
-        {/* Shared Rubric Panel */}
-        <aside className={styles.rubricArea}>
-          <RubricPanel
-            rubric={assignmentData.rubric}
-            totalMarks={totalMarks}
-            marksObtained={marksObtained}
-            onMarkChange={handleMarkChange}
-          />
-          <button className={styles.submitMarksBtn}>Submit Marks</button>
-        </aside>
-      </div>
-    </Layout>
-  );
+    const handleMarkChange = (id, value) => {
+        setMarksObtained((prev) => ({ ...prev, [id]: value }));
+    };
+
+    const totalMarks = baseData.rubric.reduce((sum, item) => sum + item.maxMarks, 0);
+
+    const displayName = getStoredUser()?.name || 'Evaluator';
+
+    return (
+        <Layout sidebarVariant="evaluator" displayName={displayName}>
+            <div className={styles.courseBanner}>
+                <h2>{baseData.course.title}</h2>
+                <p>{baseData.course.code}</p>
+            </div>
+
+            <div className={styles.evaluationGrid}>
+                <main className={styles.mediaArea}>
+                    {assignmentType === 'code' ? (
+                        <CodeViewer
+                            title={baseData.title}
+                            submissionCode={mockCodeData.submissionCode}
+                            keyCode={mockCodeData.keyCode}
+                            testCases={mockCodeData.testCases}
+                        />
+                    ) : (
+                        <>
+                            {docLoading && <p>Loading submission and key…</p>}
+                            {docError && (
+                                <p style={{ color: '#c62828' }}>{docError}</p>
+                            )}
+                            {!docLoading && !docError && (
+                                <DocumentViewer
+                                    title={`${baseData.title} · student ${studentId}`}
+                                    submissionUrl={docUrls.submission}
+                                    keyUrl={docUrls.key}
+                                />
+                            )}
+                        </>
+                    )}
+                </main>
+
+                <aside className={styles.rubricArea}>
+                    <RubricPanel
+                        rubric={baseData.rubric}
+                        totalMarks={totalMarks}
+                        marksObtained={marksObtained}
+                        onMarkChange={handleMarkChange}
+                    />
+                    <button type="button" className={styles.submitMarksBtn}>
+                        Submit Marks
+                    </button>
+                </aside>
+            </div>
+        </Layout>
+    );
 }
 
 export default EvaluationInterface;

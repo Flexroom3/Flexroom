@@ -1,11 +1,108 @@
 import axios from 'axios';
 
+const API_BASE = process.env.REACT_APP_API_BASE || '';
+
+export function getAuthHeader() {
+    const token = sessionStorage.getItem('flexroom_token');
+    if (!token) return {};
+    return { Authorization: `Bearer ${token}` };
+}
+
 export const ASSESSMENTS_CREATE_ENDPOINT =
     process.env.REACT_APP_ASSESSMENTS_API_URL ||
-    '/api/assessments-backend/api/grading/assessments';
+    `${API_BASE}/api/grading/assessments`;
 
 export function postCreateAssessment(formData) {
     return axios.post(ASSESSMENTS_CREATE_ENDPOINT, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+            ...getAuthHeader(),
+            'Content-Type': 'multipart/form-data',
+        },
     });
+}
+
+export async function fetchStudentClasses() {
+    const res = await fetch(`${API_BASE}/api/users/student/classes`, {
+        headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+}
+
+export async function fetchEvaluatorClasses() {
+    const res = await fetch(`${API_BASE}/api/users/evaluator/classes`, {
+        headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+}
+
+export async function fetchClassAssessments(classId) {
+    const res = await fetch(`${API_BASE}/api/grading/classes/${classId}/assessments`, {
+        headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+}
+
+export async function fetchAssessmentSubmissions(assessmentId) {
+    const res = await fetch(`${API_BASE}/api/grading/assessments/${assessmentId}/submissions`, {
+        headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+}
+
+export async function downloadAssessmentQuestion(assessmentId) {
+    const res = await fetch(`${API_BASE}/api/files/assessment/${assessmentId}/question`, {
+        headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+        let msg = 'Could not download question paper';
+        try {
+            const j = await res.json();
+            if (j.error) msg = j.error;
+        } catch (_) {}
+        throw new Error(msg);
+    }
+    return res.blob();
+}
+
+export async function downloadAssessmentKey(assessmentId) {
+    const res = await fetch(`${API_BASE}/api/files/assessment/${assessmentId}/key`, {
+        headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) {
+        let msg = 'Could not download solution key';
+        try {
+            const j = await res.json();
+            if (j.error) msg = j.error;
+        } catch (_) {}
+        throw new Error(msg);
+    }
+    return res.blob();
+}
+
+export async function fetchSubmissionFileBlob(submissionId) {
+    const res = await fetch(`${API_BASE}/api/files/submission/${submissionId}`, {
+        headers: { ...getAuthHeader() },
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.blob();
+}
+
+export async function joinClassByCode(classCode) {
+    const res = await fetch(`${API_BASE}/api/users/join-class`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeader(),
+        },
+        body: JSON.stringify({ classCode: Number(classCode) }),
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Could not join class');
+    }
+    return res.json();
 }

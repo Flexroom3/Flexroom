@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './components/LandingPage'; // 1. Import the new Landing Page
-import Login from './components/auth/Login'; 
-import Signup from './components/auth/Signup'; 
+import LandingPage from './components/LandingPage';
+import Login from './components/auth/Login';
+import Signup from './components/auth/Signup';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import ProgressGraph from "./components/ProgressGraph";
 import StudentPage from './components/flexroom/StudentPage';
 import EvaluatorPage from './components/flexroom/EvaluatorPage';
@@ -74,59 +75,105 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* 2. Change the Root to LandingPage */}
         <Route path="/" element={<LandingPage />} />
-        
-        {/* 3. Give Login its own specific path */}
+
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Add this flat route so it doesn't get the DashboardLayout */}
-        
         <Route path="/progress" element={<ProgressGraph />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/upload-picture" element={<UploadPicture />} />
-        
+
         <Route
           path="/flexroom/student"
-          element={<ScaledFrame><StudentPage /></ScaledFrame>}
+          element={(
+            <ProtectedRoute role="student">
+              <ScaledFrame><StudentPage /></ScaledFrame>
+            </ProtectedRoute>
+          )}
         />
         <Route
           path="/flexroom/evaluator"
-          element={<ScaledFrame><EvaluatorPage /></ScaledFrame>}
+          element={(
+            <ProtectedRoute role="evaluator">
+              <ScaledFrame><EvaluatorPage /></ScaledFrame>
+            </ProtectedRoute>
+          )}
         />
 
-        <Route path="/evaluator/class/:id" element={<EvaluatorPage />} />
-        <Route path="/evaluator/evaluate/:assignmentId/:studentId" element={<EvaluationInterface />} />
-        <Route path="/student/class/:classId" element={<StudentClassView />} />
+        <Route
+          path="/evaluator/class/:id"
+          element={(
+            <ProtectedRoute role="evaluator">
+              <ScaledFrame><EvaluatorPage /></ScaledFrame>
+            </ProtectedRoute>
+          )}
+        />
 
-        {/* Student Route with Layout */}
-        <Route path="/student" element={<DashboardLayout userRole="student" />}>
+        <Route
+          path="/evaluator/evaluate/:assignmentId/:studentId"
+          element={(
+            <ProtectedRoute role="evaluator">
+              <EvaluationInterface />
+            </ProtectedRoute>
+          )}
+        />
+
+        <Route
+          path="/student/class/:classId"
+          element={(
+            <ProtectedRoute role="student">
+              <StudentClassView />
+            </ProtectedRoute>
+          )}
+        />
+
+        <Route
+          path="/student"
+          element={(
+            <ProtectedRoute role="student">
+              <DashboardLayout userRole="student" />
+            </ProtectedRoute>
+          )}
+        >
           <Route index element={<StudentDashboard />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="calendar" element={<CalendarPage />} />
         </Route>
 
-        {/* Evaluator Route with Layout */}
-        <Route path="/evaluator" element={<DashboardLayout userRole="evaluator" />}>
+        <Route
+          path="/evaluator"
+          element={(
+            <ProtectedRoute role="evaluator">
+              <DashboardLayout userRole="evaluator" />
+            </ProtectedRoute>
+          )}
+        >
           <Route index element={<EvaluatorDashboard />} />
           <Route path="people" element={<PeoplePage />} />
           <Route path="progress/:studentId" element={<ProgressGraph />} />
           <Route path="settings" element={<SettingsPage />} />
-          <Route path="/evaluator/submissions/:id" element={<SubmissionPage />} />
+          <Route path="submissions/:id" element={<SubmissionPage />} />
         </Route>
 
-        <Route path="/create-doc-assignment" element={<DashboardLayout userRole="evaluator" />}>
+        <Route
+          path="/create-doc-assignment"
+          element={(
+            <ProtectedRoute role="evaluator">
+              <DashboardLayout userRole="evaluator" />
+            </ProtectedRoute>
+          )}
+        >
           <Route index element={<CreateDocAssignmentPage />} />
         </Route>
-        <Route path="/create-code-assignment" element={<DashboardLayout userRole="evaluator" />}>
-          <Route index element={<CreateCodeAssignmentPage />} />
-        </Route>
-
-        <Route path="/create-doc-assignment" element={<DashboardLayout userRole="evaluator" />}>
-          <Route index element={<CreateDocAssignmentPage />} />
-        </Route>
-        <Route path="/create-code-assignment" element={<DashboardLayout userRole="evaluator" />}>
+        <Route
+          path="/create-code-assignment"
+          element={(
+            <ProtectedRoute role="evaluator">
+              <DashboardLayout userRole="evaluator" />
+            </ProtectedRoute>
+          )}
+        >
           <Route index element={<CreateCodeAssignmentPage />} />
         </Route>
       </Routes>

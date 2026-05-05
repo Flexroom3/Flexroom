@@ -81,22 +81,24 @@ function StudentPage({ displayName: displayNameProp } = {}) {
     const formData = new FormData();
     formData.append('file', selectedFile);
     // Hardcoded IDs for now—replace with dynamic IDs from your route/props later
-    formData.append('assignmentId', '1'); 
-    formData.append('userId', resolvedName); 
-    formData.append('role', 'student');
+    formData.append('assignmentId', '1');
+
+    const token = sessionStorage.getItem('flexroom_token');
+    const API_BASE = process.env.REACT_APP_API_BASE || '';
 
     try {
-      const response = await fetch('http://localhost:5000/api/files/upload', {
+      const response = await fetch(`${API_BASE}/api/files/upload`, {
         method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       });
 
       if (response.ok) {
         alert(`Successfully turned in: ${selectedFile.name}`);
-        setSelectedFile(null); // Clear selection on success
+        setSelectedFile(null);
       } else {
-        const errorData = await response.json();
-        alert(`Upload failed: ${errorData.message}`);
+        const errorData = await response.json().catch(() => ({}));
+        alert(`Upload failed: ${errorData.error || errorData.message || response.statusText}`);
       }
     } catch (error) {
       console.error("Upload error:", error);

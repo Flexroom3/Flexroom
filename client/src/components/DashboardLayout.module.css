@@ -162,3 +162,35 @@
   background-color: #f5f5f5;      /* Very light grey hover effect */
   color: #333;
 }
+
+.assignmentTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  background: #fff;
+  border: 1px solid #ccc;
+}
+
+.assignmentTable th,
+.assignmentTable td {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.assignmentTable th {
+  background: #b7b7a4;
+  color: #2a2d26;
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: #1a4d2e;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}

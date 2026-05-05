@@ -1,50 +1,47 @@
+require('dotenv').config();
 const express = require('express');
 const sql = require('mssql');
 const config = require('./dbconfig');
 const rateLimit = require('express-rate-limit');
 const gradingRoutes = require('./routes/gradingRoutes');
 const userRoutes = require('./routes/userRoutes');
-// 1. Import the routes
-const fileRoutes = require('./src/routes/fileRoutes');
+const fileRoutes = require('./routes/fileRoutes');
 
-// ... other middleware like app.use(express.json()) ...
-
-// 2. Register the routes
-app.use('/api/files', fileRoutes);
-app.use('/api/users', userRoutes);
+if (!process.env.JWT_SECRET) {
+    console.warn('Warning: JWT_SECRET is not set. Set it in .env for production.');
+}
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-// Standard JSON parser for simple requests
 app.use(express.json({ limit: '10mb' }));
-app.use(require('cors')())
-// Routes
-app.use('/api/users', userRoutes);
-app.use('/api/grading', gradingRoutes); // This will now handle the multipart assessments
+app.use(require('cors')());
 
-// Rate Limiter
+app.use('/api/users', userRoutes);
+app.use('/api/grading', gradingRoutes);
+app.use('/api/files', fileRoutes);
+
 const messageLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
 });
 
 app.get('/api/message', messageLimiter, async (req, res) => {
-    let responseData = {
-        backendMsg: "Hello from the Flexroom Backend!",
-        sqlMsg: "Loading SQL data..."
+    const responseData = {
+        backendMsg: 'Hello from the Flexroom Backend!',
+        sqlMsg: 'Loading SQL data...',
     };
     try {
-        let pool = await sql.connect(config);
-        let result = await pool.request().query("SELECT TOP 1 welcomeMessage FROM Settings");
+        const pool = await sql.connect(config);
+        const result = await pool.request().query('SELECT TOP 1 welcomeMessage FROM Settings');
         if (result.recordset.length > 0) {
             responseData.sqlMsg = result.recordset[0].welcomeMessage;
         } else {
-            responseData.sqlMsg = "Settings table is empty.";
+            responseData.sqlMsg = 'Settings table is empty.';
         }
     } catch (err) {
-        console.error("SQL Error: ", err);
-        responseData.sqlMsg = "Database connection failed.";
+        console.error('SQL Error: ', err);
+        responseData.sqlMsg = 'Database connection failed.';
     }
     res.json(responseData);
 });

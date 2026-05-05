@@ -10,6 +10,11 @@ const DashboardLayout = ({ userRole }) => {
 
     const displayName = useMemo(() => {
         try {
+            const raw = sessionStorage.getItem('flexroom_user');
+            if (raw) {
+                const u = JSON.parse(raw);
+                if (u?.name) return u.name;
+            }
             if (userRole === 'evaluator') {
                 return window.localStorage.getItem('flexroomDisplayNameEvaluator') || 'Rida Amir';
             }
